@@ -57,18 +57,18 @@ class CoroutineActiveSpan(val tracer: Tracer, private val activeSpan: Span? = tr
  * Add a new Span Representing current Job
  */
 suspend fun <T> trace(
-    operationName: String? = null,
+    operationName: String,
     builder: Tracer.SpanBuilder.() -> Tracer.SpanBuilder = { this },
     cleanup: Span.() -> Unit = { finish() },
-    action: suspend CoroutineScope.(Span?) -> T
+    action: suspend CoroutineScope.(Span) -> T
 ): T {
     val activeSpan = coroutineContext[CoroutineActiveSpan]
 
     checkNotNull(activeSpan) {
         "CoroutineActiveSpan is required for proper propagation of Traces through coroutines"
     }
-    val span = activeSpan.tracer
-        .buildSpan(operationName ?: coroutineContext[CoroutineName]?.name)
+    val span: Span = activeSpan.tracer
+        .buildSpan(operationName)
         .builder()
         .start()
 
