@@ -8,7 +8,14 @@ import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
-class CoroutineActiveSpan(val tracer: Tracer, val activeSpan: Span? = tracer.activeSpan()) :
+
+/**
+ * This is A CoroutineContextElement that manages active spans in coroutines, it needs to be aware of Tracer -
+ * because it utilises it
+ *
+ * Dy default it uses Tracer to get the active span
+ */
+class CoroutineActiveSpan(val tracer: Tracer, private val activeSpan: Span? = tracer.activeSpan()) :
     ThreadContextElement<Scope>,
     AbstractCoroutineContextElement(CoroutineActiveSpan) {
 
@@ -16,12 +23,18 @@ class CoroutineActiveSpan(val tracer: Tracer, val activeSpan: Span? = tracer.act
 
     companion object Key : CoroutineContext.Key<CoroutineActiveSpan>
 
+    /**
+     * Cleans up after the coroutine suspends
+     */
     override fun restoreThreadContext(context: CoroutineContext, oldState: Scope) {
         if (logger.isTraceEnabled)
             logger.trace("${context[CoroutineName]?.name} exitScope $activeSpan")
         oldState.close()
     }
 
+    /**
+     * Restores stored active span when coroutine is resumed
+     */
     override fun updateThreadContext(context: CoroutineContext): Scope {
         if (logger.isTraceEnabled)
             logger.trace("${context[CoroutineName]?.name} enterScope $activeSpan")
@@ -29,6 +42,10 @@ class CoroutineActiveSpan(val tracer: Tracer, val activeSpan: Span? = tracer.act
         return tracer.activateSpan(activeSpan)
     }
 
+    /**
+     * Construct new coroutine context Element containing new active Span,
+     * This is required whenever we want to activate a new span
+     */
     fun nextSpan(span: Span): CoroutineActiveSpan = CoroutineActiveSpan(tracer, span)
 
     override fun toString(): String {
@@ -36,6 +53,9 @@ class CoroutineActiveSpan(val tracer: Tracer, val activeSpan: Span? = tracer.act
     }
 }
 
+/**
+ * Add a new Span Representing current Job
+ */
 suspend fun <T> trace(
     operationName: String? = null,
     builder: Tracer.SpanBuilder.() -> Tracer.SpanBuilder = { this },
@@ -45,7 +65,7 @@ suspend fun <T> trace(
     val activeSpan = coroutineContext[CoroutineActiveSpan]
 
     checkNotNull(activeSpan) {
-        "OTActiveSpan is required for proper propagation of Traces through coroutines"
+        "CoroutineActiveSpan is required for proper propagation of Traces through coroutines"
     }
     val span = activeSpan.tracer
         .buildSpan(operationName ?: coroutineContext[CoroutineName]?.name)
