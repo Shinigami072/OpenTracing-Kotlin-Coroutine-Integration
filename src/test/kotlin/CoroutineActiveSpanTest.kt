@@ -13,14 +13,16 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
 
+@ExperimentalCoroutinesApi
 class CoroutineActiveSpanTest {
 
     lateinit var tracer: MockTracer
-    var logger = LoggerFactory.getLogger(this::class.java)
+    private var logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     class LoggingScopeManager(
-        val scopeManager: ScopeManager = ThreadLocalScopeManager(),
+        private val scopeManager: ScopeManager = ThreadLocalScopeManager(),
         val logger: Logger = LoggerFactory.getLogger(LoggingScopeManager::class.java)
     ) : ScopeManager by scopeManager {
         override fun activate(span: Span?): Scope {
@@ -46,7 +48,6 @@ class CoroutineActiveSpanTest {
         tracer.close()
     }
 
-    @UseExperimental(ExperimentalCoroutinesApi::class)
     @Test
     fun `Should Create Span`() = runBlockingTest {
         advanceTimeBy(1)
@@ -149,18 +150,18 @@ class CoroutineActiveSpanTest {
     @Test
     fun `Should Create  nested independent spans Spans evenifexception is thrown`() = runBlockingTest {
         try {
-            async(CoroutineActiveSpan(tracer)) {
+            launch(CoroutineActiveSpan(tracer)) {
                 trace("TestOperation1") {
                     delay(500)
                     assert(tracer.activeSpan() != null)
-                    async {
+                    launch {
                         assert(tracer.activeSpan() != null)
                         trace("TestOperation2-1") {
                             delay(500)
                         }
                     }
 
-                    async {
+                    launch {
                         assert(tracer.activeSpan() != null)
                         trace("TestOperation2-2") {
                             assert(tracer.activeSpan() != null)
@@ -200,8 +201,8 @@ class CoroutineActiveSpanTest {
     }
 
     @Test
-    fun `Switch Threads`(): Unit {
-        val differentThread = newSingleThreadContext("DifferentThread")
+    fun `Switch Threads`() {
+        val differentThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
         runBlocking {
             launch(CoroutineActiveSpan(tracer)) {
@@ -245,7 +246,7 @@ class CoroutineActiveSpanTest {
     }
 
     @Test
-    fun `Coroutine Unaware API works correctly`(): Unit {
+    fun `Coroutine Unaware API works correctly`() {
 
         fun nonCoroutineAwareTracer(span: Span, time_ms: Long) {
             tracer.activateSpan(span).use {
@@ -270,14 +271,14 @@ class CoroutineActiveSpanTest {
         }
         activeSpan.finish()
 
-        val finished_spans = tracer.finishedSpans()
-        val root_span = finished_spans.first { it.operationName() == "Root Span" }
-        val nc = finished_spans.filter { it.operationName() == "Non Coroutine Span" }
+        val finishedSpans = tracer.finishedSpans()
+        val rootSpan = finishedSpans.first { it.operationName() == "Root Span" }
+        val nc = finishedSpans.filter { it.operationName() == "Non Coroutine Span" }
 
         assertEquals(null, tracer.activeSpan())
         nc.forEach {
-            assertEquals(root_span.context().spanId(), it.parentId())
-            assertEquals(root_span.context().traceId(), it.context().traceId())
+            assertEquals(rootSpan.context().spanId(), it.parentId())
+            assertEquals(rootSpan.context().traceId(), it.context().traceId())
         }
     }
 }
