@@ -71,9 +71,9 @@ suspend fun <T> trace(
         .builder()
         .start()
 
-
-    return withContext(activeSpan.nextSpan(span)) {
+    return withContext(coroutineContext + activeSpan.nextSpan(span)) {
         coroutineContext[Job]?.invokeOnCompletion {
+            it?.also { span.log(it.message) }
             span.cleanup()
         }
         action(span)
