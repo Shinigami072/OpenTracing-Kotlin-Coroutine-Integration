@@ -1,0 +1,15 @@
+name: Publish to Github
+
+on: [push]
+
+jobs:
+  build:   
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build Project
+      run:  ./gradlew build
+    - name: Publishit
+      run: ./gradlew -Pgpr.user=Shinigami072 -Pgpr.key=${{ secrets.GITHUB_TOKEN }} publish
+
