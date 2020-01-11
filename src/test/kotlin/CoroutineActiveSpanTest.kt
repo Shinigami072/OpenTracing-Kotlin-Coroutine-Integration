@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.IOException
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
@@ -150,36 +151,32 @@ class CoroutineActiveSpanTest {
     @Test
     fun `Should Create  nested independent spans Spans evenifexception is thrown`() = runBlockingTest {
         try {
-            launch(CoroutineActiveSpan(tracer)) {
+            async(CoroutineActiveSpan(tracer)) {
                 trace("TestOperation1") {
                     delay(500)
                     assert(tracer.activeSpan() != null)
-                    launch {
+                    async {
                         assert(tracer.activeSpan() != null)
                         trace("TestOperation2-1") {
                             delay(500)
                         }
-                    }
+                    }.await()
 
-                    launch {
+                    async {
                         assert(tracer.activeSpan() != null)
                         trace("TestOperation2-2") {
                             assert(tracer.activeSpan() != null)
-                            throw Exception()
+                            throw IOException()
                             trace("TestOperation3-2") {
                                 delay(100)
                             }
-
                         }
-                    }
-
-                    assert(tracer.activeSpan() != null)
+                    }.await()
                 }
-                assert(tracer.activeSpan() == null)
-            }.join()
-        } catch (e: java.lang.Exception) {
-
+            }.await()
+        } catch (e: IOException) {
         }
+
 
         advanceUntilIdle()
         cleanupTestCoroutines()

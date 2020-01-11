@@ -63,7 +63,6 @@ suspend fun <T> trace(
     action: suspend CoroutineScope.(Span) -> T
 ): T {
     val activeSpan = coroutineContext[CoroutineActiveSpan]
-
     checkNotNull(activeSpan) {
         "CoroutineActiveSpan is required for proper propagation of Traces through coroutines"
     }
