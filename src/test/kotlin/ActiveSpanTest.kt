@@ -6,18 +6,17 @@ import io.opentracing.mock.MockTracer
 import io.opentracing.util.ThreadLocalScopeManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
-class CoroutineActiveSpanTest {
+@ExperimentalCoroutinesTracingApi
+class ActiveSpanTest {
 
     lateinit var tracer: MockTracer
     private var logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -44,7 +43,7 @@ class CoroutineActiveSpanTest {
     }
 
     @AfterEach
-    fun teatDown() {
+    fun tearDown() {
         tracer.reset()
         tracer.close()
     }
@@ -52,9 +51,10 @@ class CoroutineActiveSpanTest {
     @Test
     fun `Should Create Span`() = runBlockingTest {
         advanceTimeBy(1)
-        withContext(CoroutineActiveSpan(tracer)) {
+        injectTracing(tracer) {
             assert(tracer.activeSpan() == null)
-            trace("TestOperation", builder = {
+            withTrace(
+                "TestOperation", builder = {
                 withStartTimestamp(currentTime * 1000)
             },
                 cleanup = {
@@ -77,12 +77,12 @@ class CoroutineActiveSpanTest {
 
     @Test
     fun `Should Create  nested Spans`() = runBlockingTest {
-        withContext(CoroutineActiveSpan(tracer)) {
+        injectTracing(tracer) {
             assert(tracer.activeSpan() == null)
-            trace("TestOperation1") {
+            withTrace("TestOperation1") {
                 assert(tracer.activeSpan() != null)
                 delay(500)
-                trace("TestOperation2") {
+                withTrace("TestOperation2") {
                     assert(tracer.activeSpan() != null)
                     delay(500)
                 }
@@ -106,19 +106,19 @@ class CoroutineActiveSpanTest {
 
     @Test
     fun `Should Create  nested independent spans Spans`() = runBlockingTest {
-        withContext(CoroutineActiveSpan(tracer)) {
-            trace("TestOperation1") {
+        injectTracing(tracer) {
+            withTrace("TestOperation1") {
                 delay(500)
                 assert(tracer.activeSpan() != null)
                 launch {
                     assert(tracer.activeSpan() != null)
-                    trace("TestOperation2-1") {
+                    withTrace("TestOperation2-1") {
                         delay(500)
                     }
                 }
                 launch {
                     assert(tracer.activeSpan() != null)
-                    trace("TestOperation2-2") {
+                    withTrace("TestOperation2-2") {
                         assert(tracer.activeSpan() != null)
                         delay(500)
                     }
@@ -151,23 +151,23 @@ class CoroutineActiveSpanTest {
     @Test
     fun `Should Create  nested independent spans Spans evenifexception is thrown`() = runBlockingTest {
         try {
-            async(CoroutineActiveSpan(tracer)) {
-                trace("TestOperation1") {
+            async(ActiveSpan(tracer)) {
+                withTrace("TestOperation1") {
                     delay(500)
                     assert(tracer.activeSpan() != null)
                     async {
                         assert(tracer.activeSpan() != null)
-                        trace("TestOperation2-1") {
+                        withTrace("TestOperation2-1") {
                             delay(500)
                         }
                     }.await()
 
                     async {
                         assert(tracer.activeSpan() != null)
-                        trace("TestOperation2-2") {
+                        withTrace("TestOperation2-2") {
                             assert(tracer.activeSpan() != null)
                             throw IOException()
-                            trace("TestOperation3-2") {
+                            withTrace("TestOperation3-2") {
                                 delay(100)
                             }
                         }
@@ -202,20 +202,20 @@ class CoroutineActiveSpanTest {
         val differentThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
         runBlocking {
-            launch(CoroutineActiveSpan(tracer)) {
-                trace("Outer Operation") {
+            launch(ActiveSpan(tracer)) {
+                withTrace("Outer Operation") {
                     withContext(differentThread) {
-                        trace("Inner Operation 1") {
+                        withTrace("Inner Operation 1") {
                             delay(100)
                         }
                     }
                     withContext(differentThread) {
-                        trace("Inner Operation 2") {
+                        withTrace("Inner Operation 2") {
                             delay(100)
                         }
                     }
                     withContext(differentThread) {
-                        trace("Inner Operation 3") {
+                        withTrace("Inner Operation 3") {
                             delay(100)
                         }
                     }
@@ -256,8 +256,8 @@ class CoroutineActiveSpanTest {
 
         val activeSpan: Span = tracer.buildSpan("Root Span").start()
         runBlockingTest {
-            launch(CoroutineActiveSpan(tracer)) {
-                trace("Outer Operation") {
+            launch(ActiveSpan(tracer)) {
+                withTrace("Outer Operation") {
                     nonCoroutineAwareTracer(activeSpan, currentTime)
                     delay(100)
                     nonCoroutineAwareTracer(activeSpan, currentTime)
@@ -278,4 +278,36 @@ class CoroutineActiveSpanTest {
             assertEquals(rootSpan.context().traceId(), it.context().traceId())
         }
     }
+
+    @Nested
+    inner class MissingContextElement {
+        @Test
+        fun `Should throw an exception When MissingContext on tracer access`() = runBlockingTest {
+            assertThrows<IllegalStateException> { coroutineContext.tracer }
+        }
+
+        @Test
+        fun `Should throw an exception When MissingContext on activeSpan access`() = runBlockingTest {
+            assertThrows<IllegalStateException> { coroutineContext.activeSpan }
+        }
+
+    }
+
+    @Nested
+    inner class CoroutineContextAccesors {
+        @Test
+        fun `Should return correct tracer`() = runBlockingTest {
+            injectTracing(tracer) {
+                assertEquals(coroutineContext.tracer, tracer)
+            }
+        }
+
+        @Test
+        fun `Should return correct activeSpan`() = runBlockingTest {
+            injectTracing(tracer) {
+                assertEquals(coroutineContext.activeSpan, coroutineContext[ActiveSpan])
+            }
+        }
+    }
+
 }
