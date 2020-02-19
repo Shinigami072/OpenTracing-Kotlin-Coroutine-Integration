@@ -1,3 +1,3 @@
-rootProject.name = "OpenTracing-Kotlin-Coroutine-Integration"
+rootProject.name = "coroutine-opentracing-api"
 
 include(":coroutine-tracing-api-core")
