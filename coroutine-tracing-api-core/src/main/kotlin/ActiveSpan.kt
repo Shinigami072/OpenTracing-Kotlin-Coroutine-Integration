@@ -41,7 +41,7 @@ class ActiveSpan(val tracer: Tracer, val span: Span? = tracer.activeSpan()) :
     }
 
     override fun toString(): String {
-        return "ActiveSpan{activeSpan=$span,tracer=$tracer}"
+        return "ActiveSpan{getActiveSpan=$span,getTracer=$tracer}"
     }
 }
 
