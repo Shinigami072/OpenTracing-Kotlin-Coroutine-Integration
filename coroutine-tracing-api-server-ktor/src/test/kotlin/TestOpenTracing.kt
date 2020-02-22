@@ -10,12 +10,14 @@ import io.ktor.routing.routing
 import io.ktor.server.testing.contentType
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
+import io.ktor.util.toMap
 import io.opentracing.mock.MockTracer
 import io.opentracing.propagation.Format
 import io.opentracing.propagation.TextMapAdapter
 import junit.framework.TestCase.assertEquals
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import shinigami.OpenTracing
 
 @ExperimentalCoroutinesTracingApi
 class TestOpenTracing {
@@ -137,20 +139,30 @@ class TestOpenTracing {
             mockTracer.inject(span.context(), Format.Builtin.HTTP_HEADERS, httpCarrier)
             map.forEach { (header, value) ->
                 addHeader(header, value)
-            }.also {
-                println("Map")
-                println(map)
             }
         }.let { call ->
+            val headers = call.response
+                .headers
+                .allValues()
+                .toMap()
+                .mapValues { (_, value) -> value.first() }
+                .toMutableMap()
+                .toTextMap()
+            val sc = mockTracer.extract(Format.Builtin.HTTP_HEADERS, headers)
             //Then
             assertEquals(HttpStatusCode.OK, call.response.status())
             assertEquals(ContentType.Text.Plain, call.response.contentType().withoutParameters())
             assertEquals("OK", call.response.content)
-
             mockTracer.finishedSpans()
                 .first { it.operationName() == call.request.toLogString() }
                 .let { root ->
                     assertEquals(span.context().spanId(), root.parentId())
+                }
+
+            mockTracer.finishedSpans()
+                .last()
+                .let { exit ->
+                    assertEquals(sc.toSpanId(), exit.context.toSpanId())
                 }
         }
     }

@@ -6,9 +6,14 @@ import io.opentracing.mock.MockTracer
 import io.opentracing.util.ThreadLocalScopeManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.jupiter.api.*
+import mu.KLogger
+import mu.KotlinLogging
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.IOException
@@ -18,8 +23,8 @@ import java.util.concurrent.Executors
 @ExperimentalCoroutinesTracingApi
 class ActiveSpanTest {
 
-    lateinit var tracer: MockTracer
-    private var logger: Logger = LoggerFactory.getLogger(this::class.java)
+    private var logger: KLogger = KotlinLogging.logger {}
+    var tracer: MockTracer = MockTracer(LoggingScopeManager(logger = logger))
 
     class LoggingScopeManager(
         private val scopeManager: ScopeManager = ThreadLocalScopeManager(),
@@ -37,15 +42,9 @@ class ActiveSpanTest {
         }
     }
 
-    @BeforeEach
-    fun setUp() {
-        tracer = MockTracer(LoggingScopeManager(logger = logger))
-    }
-
     @AfterEach
     fun tearDown() {
         tracer.reset()
-        tracer.close()
     }
 
     @Test
@@ -149,7 +148,7 @@ class ActiveSpanTest {
 
 
     @Test
-    fun `Should Create  nested independent spans Spans evenifexception is thrown`() = runBlockingTest {
+    fun `Should Create  nested independent spans Spans even if exception is thrown`() = runBlockingTest {
         try {
             async(ActiveSpan(tracer)) {
                 withTrace("TestOperation1") {
