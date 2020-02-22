@@ -17,10 +17,12 @@ private val logger = KotlinLogging.logger {}
  * Dy default it uses Tracer to get the active span
  */
 @ExperimentalCoroutinesTracingApi
-class ActiveSpan(val tracer: Tracer, val span: Span? = tracer.activeSpan()) :
+class ActiveSpan(
+    val tracer: Tracer,
+    val span: Span? = tracer.activeSpan()
+) :
     ThreadContextElement<Scope>,
     AbstractCoroutineContextElement(ActiveSpan) {
-
 
     companion object Key : CoroutineContext.Key<ActiveSpan>
 
@@ -28,7 +30,11 @@ class ActiveSpan(val tracer: Tracer, val span: Span? = tracer.activeSpan()) :
      * Cleans up after the coroutine suspends
      */
     override fun restoreThreadContext(context: CoroutineContext, oldState: Scope) {
-        logger.trace { "${context[CoroutineName]?.name} exitScope $span" }
+        logger.trace { "${context[CoroutineName]?.name ?: "coroutine"} exitScope $span" }
+        runCatching {
+            span?.log(mapOf("event" to "suspended", "coroutine" to (context[CoroutineName]?.name ?: "coroutine")))
+        }
+
         oldState.close()
     }
 
@@ -37,6 +43,10 @@ class ActiveSpan(val tracer: Tracer, val span: Span? = tracer.activeSpan()) :
      */
     override fun updateThreadContext(context: CoroutineContext): Scope {
         logger.trace { "${context[CoroutineName]?.name} enterScope $span" }
+        runCatching {
+            span?.log(mapOf("event" to "resumed", "coroutine" to (context[CoroutineName]?.name ?: "coroutine")))
+        }
+
         return tracer.activateSpan(span)
     }
 

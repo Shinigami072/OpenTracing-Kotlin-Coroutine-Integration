@@ -1,3 +1,10 @@
+val coroutines_version: String by project
+val opentracing_version: String by project
+val slf4j_version: String by project
+val kotlin_logging_version: String by project
+val junit_version: String by project
+val logback_version: String by project
+
 plugins {
     kotlin("jvm")
     `maven-publish`
@@ -19,25 +26,19 @@ group = rootProject.group
 version = rootProject.version
 
 dependencies {
-    val coroutinesVersion = project.findProperty("coroutines_version") as String
-    val opentracingVersion = project.findProperty("opentracing_version") as String
-    val slf4jVersion = project.findProperty("slf4j_version") as String
-    val kotlinLoggingVersion = project.findProperty("kotlin_logging_version") as String
-    val junitVersion = project.findProperty("junit_version") as String
-    val logbackVersion = project.findProperty("logback_version") as String
 
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("io.opentracing:opentracing-api:$opentracingVersion")
-    implementation("io.opentracing:opentracing-util:$opentracingVersion")
-    implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version")
+    implementation("io.opentracing:opentracing-api:$opentracing_version")
+    implementation("io.opentracing:opentracing-util:$opentracing_version")
+    implementation("io.github.microutils:kotlin-logging:$kotlin_logging_version")
+    implementation("org.slf4j:slf4j-api:$slf4j_version")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
-    testImplementation("io.opentracing:opentracing-mock:$opentracingVersion")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
-    testRuntimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_version")
+    testImplementation("io.opentracing:opentracing-mock:$opentracing_version")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit_version")
+    testRuntimeOnly("ch.qos.logback:logback-classic:$logback_version")
 }
 
 tasks {

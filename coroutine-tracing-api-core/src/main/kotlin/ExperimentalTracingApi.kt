@@ -8,4 +8,4 @@ import kotlin.Experimental.Level
 @MustBeDocumented
 @Retention(value = AnnotationRetention.BINARY)
 @Experimental(level = Level.WARNING)
-internal annotation class ExperimentalCoroutinesTracingApi
+annotation class ExperimentalCoroutinesTracingApi
