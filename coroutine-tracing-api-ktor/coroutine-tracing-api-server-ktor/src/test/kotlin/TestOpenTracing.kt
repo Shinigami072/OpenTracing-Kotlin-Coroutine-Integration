@@ -1,3 +1,8 @@
+package io.github.shinigami.coroutineTracingApi.ktor.server
+
+import io.github.shinigami.coroutineTracingApi.context
+import io.github.shinigami.coroutineTracingApi.toTextMap
+import io.github.shinigami.coroutineTracingApi.withTrace
 import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.toLogString
@@ -14,10 +19,6 @@ import io.ktor.util.toMap
 import io.opentracing.mock.MockTracer
 import io.opentracing.propagation.Format
 import io.opentracing.propagation.TextMapAdapter
-import io.shinigami.coroutineTracingApi.context
-import io.shinigami.coroutineTracingApi.ktor.server.OpenTracing
-import io.shinigami.coroutineTracingApi.toTextMap
-import io.shinigami.coroutineTracingApi.withTrace
 import junit.framework.TestCase.assertEquals
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test

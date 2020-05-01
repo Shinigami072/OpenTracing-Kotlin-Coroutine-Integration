@@ -1,3 +1,9 @@
+package io.github.shinigami.coroutineTracingApi.ktor.client
+
+import io.github.shinigami.coroutineTracingApi.context
+import io.github.shinigami.coroutineTracingApi.injectTracing
+import io.github.shinigami.coroutineTracingApi.toTextMap
+import io.github.shinigami.coroutineTracingApi.withTrace
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockEngineConfig
 import io.ktor.client.engine.mock.respondOk
@@ -11,11 +17,6 @@ import io.opentracing.Span
 import io.opentracing.SpanContext
 import io.opentracing.mock.MockTracer
 import io.opentracing.propagation.Format
-import io.shinigami.coroutineTracingApi.context
-import io.shinigami.coroutineTracingApi.injectTracing
-import io.shinigami.coroutineTracingApi.ktor.client.OpenTracing
-import io.shinigami.coroutineTracingApi.toTextMap
-import io.shinigami.coroutineTracingApi.withTrace
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test

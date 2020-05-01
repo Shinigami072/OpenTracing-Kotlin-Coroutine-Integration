@@ -1,5 +1,7 @@
-package io.shinigami.example
+package io.github.shinigami.example
 
+import io.github.shinigami.coroutineTracingApi.ktor.server.OpenTracing
+import io.github.shinigami.coroutineTracingApi.withTrace
 import io.jaegertracing.Configuration
 import io.jaegertracing.internal.samplers.ConstSampler
 import io.ktor.application.Application
@@ -10,8 +12,6 @@ import io.ktor.response.respond
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.opentracing.Tracer
-import io.shinigami.coroutineTracingApi.ktor.server.OpenTracing
-import io.shinigami.coroutineTracingApi.withTrace
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 

@@ -1,5 +1,7 @@
-package io.shinigami.coroutineTracingApi.ktor.server
+package io.github.shinigami.coroutineTracingApi.ktor.server
 
+import io.github.shinigami.coroutineTracingApi.*
+import io.github.shinigami.coroutineTracingApi.ktor.utils.asTextMap
 import io.ktor.application.ApplicationCall
 import io.ktor.application.ApplicationCallPipeline
 import io.ktor.application.ApplicationFeature
@@ -12,8 +14,6 @@ import io.opentracing.Span
 import io.opentracing.Tracer
 import io.opentracing.noop.NoopTracerFactory
 import io.opentracing.propagation.Format
-import io.shinigami.coroutineTracingApi.*
-import io.shinigami.coroutineTracingApi.ktor.utils.asTextMap
 
 class OpenTracing(config: Configuration) {
     private val tracer = config.tracer

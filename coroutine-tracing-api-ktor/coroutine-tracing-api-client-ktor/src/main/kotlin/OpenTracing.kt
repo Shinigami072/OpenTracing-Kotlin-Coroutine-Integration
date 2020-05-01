@@ -1,5 +1,10 @@
-package io.shinigami.coroutineTracingApi.ktor.client
+package io.github.shinigami.coroutineTracingApi.ktor.client
 
+import io.github.shinigami.coroutineTracingApi.activeSpan
+import io.github.shinigami.coroutineTracingApi.context
+import io.github.shinigami.coroutineTracingApi.extractSpan
+import io.github.shinigami.coroutineTracingApi.ktor.utils.asTextMap
+import io.github.shinigami.coroutineTracingApi.withTrace
 import io.ktor.client.HttpClient
 import io.ktor.client.features.HttpClientFeature
 import io.ktor.client.request.HttpRequestPipeline
@@ -10,11 +15,6 @@ import io.opentracing.Span
 import io.opentracing.Tracer
 import io.opentracing.noop.NoopTracerFactory
 import io.opentracing.propagation.Format
-import io.shinigami.coroutineTracingApi.activeSpan
-import io.shinigami.coroutineTracingApi.context
-import io.shinigami.coroutineTracingApi.extractSpan
-import io.shinigami.coroutineTracingApi.ktor.utils.asTextMap
-import io.shinigami.coroutineTracingApi.withTrace
 
 class OpenTracing(config: Configuration) {
     private val tracer = config.tracer

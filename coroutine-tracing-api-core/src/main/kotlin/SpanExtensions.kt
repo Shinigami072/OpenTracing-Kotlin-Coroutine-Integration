@@ -1,4 +1,4 @@
-package io.shinigami.coroutineTracingApi
+package io.github.shinigami.coroutineTracingApi
 
 import io.opentracing.Span
 import io.opentracing.SpanContext

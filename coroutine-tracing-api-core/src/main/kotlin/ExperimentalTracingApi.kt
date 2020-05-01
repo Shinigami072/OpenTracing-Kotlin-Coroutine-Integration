@@ -1,4 +1,4 @@
-package io.shinigami.coroutineTracingApi
+package io.github.shinigami.coroutineTracingApi
 
 /**
  * Marks declarations that are still **experimental** in coroutine tracing API, which means that the design of the

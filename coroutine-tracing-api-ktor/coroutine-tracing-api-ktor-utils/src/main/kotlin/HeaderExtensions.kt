@@ -1,4 +1,4 @@
-package io.shinigami.coroutineTracingApi.ktor.utils
+package io.github.shinigami.coroutineTracingApi.ktor.utils
 
 import io.ktor.http.Headers
 import io.ktor.http.HeadersBuilder

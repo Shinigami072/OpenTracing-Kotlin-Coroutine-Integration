@@ -1,12 +1,11 @@
+package io.github.shinigami.coroutineTracingApi
+
 import io.opentracing.Scope
 import io.opentracing.ScopeManager
 import io.opentracing.Span
 import io.opentracing.mock.MockTracer
 import io.opentracing.propagation.Format
 import io.opentracing.util.ThreadLocalScopeManager
-import io.shinigami.coroutineTracingApi.ActiveSpan
-import io.shinigami.coroutineTracingApi.extractSpan
-import io.shinigami.coroutineTracingApi.toTextMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import mu.KLogger

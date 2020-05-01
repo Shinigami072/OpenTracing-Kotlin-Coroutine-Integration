@@ -1,5 +1,8 @@
-package io.shinigami.example
+package io.github.shinigami.example
 
+import io.github.shinigami.coroutineTracingApi.injectTracing
+import io.github.shinigami.coroutineTracingApi.ktor.client.OpenTracing
+import io.github.shinigami.coroutineTracingApi.withTrace
 import io.jaegertracing.Configuration
 import io.jaegertracing.internal.samplers.ConstSampler
 import io.ktor.client.HttpClient
@@ -7,9 +10,6 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.post
 import io.ktor.util.KtorExperimentalAPI
 import io.opentracing.Tracer
-import io.shinigami.coroutineTracingApi.injectTracing
-import io.shinigami.coroutineTracingApi.ktor.client.OpenTracing
-import io.shinigami.coroutineTracingApi.withTrace
 
 
 @OptIn(KtorExperimentalAPI::class)

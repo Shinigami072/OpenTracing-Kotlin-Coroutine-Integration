@@ -11,7 +11,7 @@ plugins {
 }
 
 application {
-    mainClassName = "io.shinigami.example.ApplicationKt"
+    mainClassName = "io.github.shinigami.example.ApplicationKt"
 }
 
 group = rootProject.group
