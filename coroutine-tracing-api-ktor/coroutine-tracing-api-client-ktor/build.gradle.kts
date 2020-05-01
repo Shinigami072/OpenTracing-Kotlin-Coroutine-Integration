@@ -19,9 +19,9 @@ repositories {
 
 dependencies {
     implementation(project(":coroutine-tracing-api-core"))
+    implementation(project(":coroutine-tracing-api-ktor:coroutine-tracing-api-ktor-utils"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
-    implementation("io.ktor:ktor-client-core:$ktor_version")
-    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-core-jvm:$ktor_version")
     implementation("io.opentracing:opentracing-api:$opentracing_version")
     implementation("io.opentracing:opentracing-util:$opentracing_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
