@@ -1,4 +1,4 @@
-import kotlin.Experimental.Level
+package io.shinigami.coroutineTracingApi
 
 /**
  * Marks declarations that are still **experimental** in coroutine tracing API, which means that the design of the
@@ -7,5 +7,8 @@ import kotlin.Experimental.Level
  */
 @MustBeDocumented
 @Retention(value = AnnotationRetention.BINARY)
-@Experimental(level = Level.WARNING)
+@RequiresOptIn(
+    level = RequiresOptIn.Level.WARNING,
+    message = "This part of the api is still experimantal and may change in the future"
+)
 annotation class ExperimentalCoroutinesTracingApi

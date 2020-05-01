@@ -1,3 +1,5 @@
+package io.shinigami.coroutineTracingApi
+
 import io.opentracing.Span
 import io.opentracing.SpanContext
 import io.opentracing.propagation.TextMap
@@ -16,13 +18,3 @@ fun MutableMap<String, String>.toTextMap(): TextMap = TextMapAdapter(this)
  */
 val Span.context: SpanContext
     get() = context()
-
-//Todo if needed
-//val Span.spanId:String
-//    get() = context.toSpanId()
-
-//val Span.traceId:String
-//    get() = context.toTraceId()
-//
-//val Span.baggage:Iterable<Map.Entry<String,String>>
-//    get() = context.baggageItems()

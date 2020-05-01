@@ -4,6 +4,9 @@ import io.opentracing.Span
 import io.opentracing.mock.MockTracer
 import io.opentracing.propagation.Format
 import io.opentracing.util.ThreadLocalScopeManager
+import io.shinigami.coroutineTracingApi.ActiveSpan
+import io.shinigami.coroutineTracingApi.extractSpan
+import io.shinigami.coroutineTracingApi.toTextMap
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import mu.KLogger
@@ -17,7 +20,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 @ExperimentalCoroutinesApi
-@ExperimentalCoroutinesTracingApi
 class SpanExtractionTest {
     private var logger: KLogger = KotlinLogging.logger {}
     var tracer: MockTracer = MockTracer(LoggingScopeManager(logger = logger))

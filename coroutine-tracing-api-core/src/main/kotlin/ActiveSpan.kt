@@ -1,3 +1,5 @@
+package io.shinigami.coroutineTracingApi
+
 import io.opentracing.Scope
 import io.opentracing.Span
 import io.opentracing.SpanContext
@@ -20,7 +22,6 @@ private val logger = KotlinLogging.logger {}
  *
  * Dy default it uses Tracer to get the active span
  */
-@ExperimentalCoroutinesTracingApi
 class ActiveSpan(
     val tracer: Tracer,
     val span: Span? = tracer.activeSpan()
@@ -68,7 +69,6 @@ class ActiveSpan(
  *
  * If you are looking for a way to trace your application @see [withTrace]
  */
-@ExperimentalCoroutinesTracingApi
 suspend fun <T> activateSpan(span: Span, block: suspend CoroutineScope.(Span) -> T): T {
 
     val context = if (coroutineContext[ActiveSpan]?.span != span)
@@ -88,7 +88,6 @@ suspend fun <T> activateSpan(span: Span, block: suspend CoroutineScope.(Span) ->
 /**
  * A helper util for getting the tracer, if the coroutine context does not contain an @see [ActiveSpan] an error will be thrown @see [CoroutineContext.activeSpan]
  */
-@ExperimentalCoroutinesTracingApi
 val CoroutineContext.tracer: Tracer
     get() {
         return activeSpan.tracer
@@ -98,13 +97,13 @@ val CoroutineContext.tracer: Tracer
  * A helper util for getting the ActiveSpan, if the coroutine context does not contain an @see [ActiveSpan]
  * an error will be thrown
  */
-@ExperimentalCoroutinesTracingApi
 val CoroutineContext.activeSpan: ActiveSpan
     get() {
-        return get(ActiveSpan) ?: error {
-            logger.error { this.toString() }
-            "CoroutineActiveSpan is required for proper propagation of Traces through coroutines"
-        }
+        return get(ActiveSpan) ?: error(
+            "CoroutineActiveSpan is required for proper propagation of Traces through coroutines".also {
+                logger.error { this.toString() }
+            }
+        )
     }
 
 suspend fun Span.addCleanup(
@@ -128,7 +127,6 @@ suspend fun Span.addCleanup(
  *
  * If you are looking for a way to trace your application @see [withTrace]
  */
-@ExperimentalCoroutinesTracingApi
 inline fun Tracer.span(
     operationName: String,
     builder: Tracer.SpanBuilder.() -> Tracer.SpanBuilder
@@ -138,7 +136,6 @@ inline fun Tracer.span(
         .start()
 }
 
-@ExperimentalCoroutinesTracingApi
 suspend inline fun span(operationName: String, builder: Tracer.SpanBuilder.() -> Tracer.SpanBuilder): Span =
     coroutineContext.tracer
         .span(
@@ -149,7 +146,6 @@ suspend inline fun span(operationName: String, builder: Tracer.SpanBuilder.() ->
  * This is intended as a low level api for span extraction
  * if used in a context not containing @see [ActiveSpan] it fill throw an error
  */
-@ExperimentalCoroutinesTracingApi
 fun <C> Tracer.SpanBuilder.extractSpan(
     carrier: C,
     format: Format<C>,
@@ -163,21 +159,3 @@ fun <C> Tracer.SpanBuilder.extractSpan(
     } ?: this
 
 }
-
-///**
-// * This is intended as a low level api for span injection
-// * if used in a context not containing @see [ActiveSpan] it fill throw an error
-// */
-//@ExperimentalCoroutinesTracingApi
-//suspend inline fun <C> Span.injectSpan(
-//    format: Format<C>,
-//    carrier: () -> C
-//): C {
-//    val carry = carrier()
-//    coroutineContext.tracer.inject(context, format, carry)
-//    return carry
-//}
-
-
-
-

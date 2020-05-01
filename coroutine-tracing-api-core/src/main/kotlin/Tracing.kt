@@ -1,12 +1,14 @@
+package io.shinigami.coroutineTracingApi
+
 import io.opentracing.Span
 import io.opentracing.Tracer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 
 /**
  * Add a new Span Representing current Job
  */
-@ExperimentalCoroutinesTracingApi
 suspend inline fun <T> withTrace(
     operationName: String,
     noinline builder: Tracer.SpanBuilder.() -> Tracer.SpanBuilder = { this },
@@ -16,14 +18,15 @@ suspend inline fun <T> withTrace(
     val span: Span = span(operationName, builder)
     return activateSpan(span) {
         span.addCleanup(cleanup)
-        block(span)
+        coroutineScope {
+            block(span)
+        }
     }
 }
 
 /**
  * Helper method for creating
  */
-@ExperimentalCoroutinesTracingApi
 suspend fun <T> injectTracing(
     tracer: Tracer,
     span: Tracer.() -> Span? = { null },

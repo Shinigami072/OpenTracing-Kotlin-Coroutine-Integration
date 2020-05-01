@@ -1,6 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.3.60" apply false
+    kotlin("jvm") version "1.3.71" apply false
 }
 
-group = "shinigami"
-version = "0.1.1"
+group = "io.shinigami"
+version = "0.2.0"

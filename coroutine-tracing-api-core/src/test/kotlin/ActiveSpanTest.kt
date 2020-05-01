@@ -4,6 +4,7 @@ import io.opentracing.Span
 import io.opentracing.mock.MockSpan
 import io.opentracing.mock.MockTracer
 import io.opentracing.util.ThreadLocalScopeManager
+import io.shinigami.coroutineTracingApi.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.runBlockingTest
 import mu.KLogger
@@ -20,7 +21,6 @@ import java.io.IOException
 import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
-@ExperimentalCoroutinesTracingApi
 class ActiveSpanTest {
 
     private var logger: KLogger = KotlinLogging.logger {}
@@ -54,8 +54,8 @@ class ActiveSpanTest {
             assert(tracer.activeSpan() == null)
             withTrace(
                 "TestOperation", builder = {
-                withStartTimestamp(currentTime * 1000)
-            },
+                    withStartTimestamp(currentTime * 1000)
+                },
                 cleanup = {
                     finish(currentTime * 1000)
                 }) {
@@ -108,7 +108,7 @@ class ActiveSpanTest {
         injectTracing(tracer) {
             withTrace("TestOperation1") {
                 delay(500)
-                assert(tracer.activeSpan() != null)
+                assert(tracer.activeSpan() == it) { "Span Should be restored" }
                 launch {
                     assert(tracer.activeSpan() != null)
                     withTrace("TestOperation2-1") {
@@ -122,17 +122,17 @@ class ActiveSpanTest {
                         delay(500)
                     }
                 }
-                assert(tracer.activeSpan() != null)
+                assert(tracer.activeSpan() == it) { "Span Should be restored" }
             }
-            assert(tracer.activeSpan() == null)
+            assert(tracer.activeSpan() == null) { "Span should be cleared" }
         }
 
         advanceUntilIdle()
         cleanupTestCoroutines()
 
         val traces: List<MockSpan> = tracer.finishedSpans()
-        assert(tracer.activeSpan() == null)
-        assert(3 == traces.size)
+        assert(tracer.activeSpan() == null) { "finally Span Should be cleared" }
+        assert(3 == traces.size) { "Should have created 3 spans actually created (${traces.size})" }
         val span1 = traces.find { it.operationName() == "TestOperation1" }
         val span21 = traces.find { it.operationName() == "TestOperation2-1" }
         val span22 = traces.find { it.operationName() == "TestOperation2-2" }
