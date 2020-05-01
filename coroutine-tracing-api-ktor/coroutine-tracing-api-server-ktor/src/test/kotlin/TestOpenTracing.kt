@@ -14,12 +14,14 @@ import io.ktor.util.toMap
 import io.opentracing.mock.MockTracer
 import io.opentracing.propagation.Format
 import io.opentracing.propagation.TextMapAdapter
+import io.shinigami.coroutineTracingApi.context
+import io.shinigami.coroutineTracingApi.ktor.server.OpenTracing
+import io.shinigami.coroutineTracingApi.toTextMap
+import io.shinigami.coroutineTracingApi.withTrace
 import junit.framework.TestCase.assertEquals
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import shinigami.OpenTracing
 
-@ExperimentalCoroutinesTracingApi
 class TestOpenTracing {
 
     private val mockTracer: MockTracer = MockTracer()
