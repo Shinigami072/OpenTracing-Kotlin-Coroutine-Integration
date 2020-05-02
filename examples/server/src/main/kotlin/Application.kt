@@ -1,6 +1,7 @@
 package io.github.shinigami.example
 
 import io.github.shinigami.coroutineTracingApi.ktor.server.OpenTracing
+import io.github.shinigami.coroutineTracingApi.logError
 import io.github.shinigami.coroutineTracingApi.withTrace
 import io.jaegertracing.Configuration
 import io.jaegertracing.internal.samplers.ConstSampler
@@ -9,6 +10,7 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.request.receiveText
 import io.ktor.response.respond
+import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.opentracing.Tracer
@@ -43,8 +45,20 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
+        get {
+            withTrace(toString()) {
+                withTrace("test") {
+                    it.logError(IllegalStateException("TestSpan"))
+                }
+                call.respond("Hello")
+                finish()
+            }
+        }
         post {
             withTrace(toString()) {
+//                withTrace("test"){
+//                    it.logError(IllegalStateException("TestSpan"))
+//                }
                 call.respond(call.receiveText())
                 finish()
             }

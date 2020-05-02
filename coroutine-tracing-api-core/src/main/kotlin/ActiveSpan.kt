@@ -7,8 +7,6 @@ import io.opentracing.Tracer
 import io.opentracing.propagation.Format
 import kotlinx.coroutines.*
 import mu.KotlinLogging
-import java.io.PrintWriter
-import java.io.StringWriter
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
@@ -38,7 +36,7 @@ class ActiveSpan(
         logger.trace { "${context[CoroutineName]?.name ?: "coroutine"} exitScope $span" }
         logger.debug { "restore$context" }
         runCatching {
-            if (context.isActive) {
+            if (context[Job]?.isCompleted != false) {
                 span?.log(mapOf("event" to "suspend", "coroutine" to (context[CoroutineName]?.name ?: "coroutine")))
             }
         }
@@ -111,12 +109,8 @@ suspend fun Span.addCleanup(
 ) {
     coroutineContext[Job]?.invokeOnCompletion {
         logger.debug { "Cleanup ${context.toSpanId()}" }
-        it?.also {
-            val errors = StringWriter()
-            it.printStackTrace(PrintWriter(errors))
-            setTag("error", true)
-            log(mapOf("stack" to errors))
-        }
+        it?.also { logError(it) }
+        log("cleanup")
         cleanup(it)
     }
 }
