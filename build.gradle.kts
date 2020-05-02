@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    group = "io.github.shinigami"
+    group = "io.github.shinigami072"
     version = "0.2.0"
 }
 val signRequired: String by project
