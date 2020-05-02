@@ -7,23 +7,7 @@ val logback_version: String by project
 
 plugins {
     kotlin("jvm")
-    `maven-publish`
 }
-
-repositories {
-    mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/Shinigami072/OpenTracing-Kotlin-Coroutine-Integration")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("PASSWORD")
-        }
-    }
-}
-
-group = rootProject.group
-version = rootProject.version
 
 dependencies {
 
@@ -51,23 +35,5 @@ tasks {
     }
     test {
         useJUnitPlatform()
-    }
-}
-publishing {
-    repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/Shinigami072/OpenTracing-Kotlin-Coroutine-Integration")
-            credentials {
-                username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") as String? ?: System.getenv("PASSWORD")
-            }
-        }
-    }
-
-    publications {
-        register("gpr", MavenPublication::class) {
-            from(components["java"])
-        }
     }
 }

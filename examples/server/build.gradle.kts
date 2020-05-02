@@ -8,6 +8,7 @@ val opentracing_version: String by project
 plugins {
     application
     kotlin("jvm")
+    id("org.jetbrains.dokka")
 }
 
 application {
