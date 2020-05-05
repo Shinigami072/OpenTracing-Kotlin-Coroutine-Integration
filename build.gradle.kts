@@ -67,6 +67,15 @@ subprojects {
                         password = project.findProperty("gpr.key") as String? ?: System.getenv("PASSWORD")
                     }
                 }
+                maven {
+                    name = "OSSRH"
+                    url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+                    credentials {
+                        username = project.findProperty("OSSRH_user") as String? ?: System.getenv("OSSRH_USERNAME")
+                        password = project.findProperty("OSSRH_key") as String? ?: System.getenv("OSSRH_PASSWORD")
+                    }
+
+                }
             }
 
             publications {
@@ -117,7 +126,9 @@ subprojects {
 
         if (signRequired.toBoolean())
             signing {
-                useGpgCmd()
+                val signingKey: String? by project
+                val signingPassword: String? by project
+                useInMemoryPgpKeys(signingKey, signingPassword)
                 sign(publishing.publications["gpr"])
             }
     }
