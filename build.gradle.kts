@@ -5,6 +5,19 @@ plugins {
     signing
 }
 
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/Shinigami072/OpenTracing-Kotlin-Coroutine-Integration")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("PASSWORD")
+        }
+    }
+}
+
 allprojects {
     group = "io.github.shinigami072"
     version = "0.2.1"
