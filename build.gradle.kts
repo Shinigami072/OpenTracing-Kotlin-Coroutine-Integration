@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "io.github.shinigami072"
-    version = "0.2.0"
+    version = "0.2.1"
 }
 val signRequired: String by project
 val toPublish = setOf(
