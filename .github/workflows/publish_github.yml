@@ -23,5 +23,5 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
     - name: Publishit
-      run: ./gradlew -PsignRequired=true -Pgpr.user=Shinigami072 -Pgpr.key=${{ secrets.GITHUB_TOKEN }} publish
+      run: ./gradlew --debug -PsignRequired=true -Pgpr.user=Shinigami072 -Pgpr.key=${{ secrets.GITHUB_TOKEN }} publish
 
