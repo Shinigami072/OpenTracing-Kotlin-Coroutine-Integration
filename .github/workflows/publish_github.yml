@@ -26,7 +26,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
     - name: Publishit
-      run: ./gradlew -PsigningPassword=${{ secrets.ORG_GRADLE_PROJECT_signingPassword }} -PsigningKey=${{ secrets.ORG_GRADLE_PROJECT_signingKey }} -PsignRequired=true -Pgpr.user=Shinigami072 -Pgpr.key=${{ secrets.GITHUB_TOKEN }} publishGprPublicationToGitHubPackagesRepository publishGprPublicationToOSSRHRepository
+      run: ./gradlew -PsigningPassword=${{ secrets.ORG_GRADLE_PROJECT_signingPassword }} -PsigningKey=${{ secrets.ORG_GRADLE_PROJECT_signingKey }} -PsignRequired=true -Pgpr.user=Shinigami072 -Pgpr.key=${{ secrets.GITHUB_TOKEN }} publishGprPublicationToGitHubPackagesRepository
       env:
           ORG_GRADLE_PROJECT_OSSRH_key: ${{ secrets.ORG_GRADLE_PROJECT_OSSRH_key }} # This token is provided by Actions, you do not need to create your own token
           ORG_GRADLE_PROJECT_OSSRH_user: ${{ secrets. ORG_GRADLE_PROJECT_OSSRH_user }} # This token is provided by Actions, you do not need to create your own token
