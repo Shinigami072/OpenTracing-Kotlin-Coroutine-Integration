@@ -22,7 +22,7 @@ allprojects {
     group = "io.github.shinigami072"
     version = "0.2.1"
 }
-val signRequired: String by project
+val signRequired: String? by project
 val toPublish = setOf(
     "coroutine-tracing-api-server-ktor",
     "coroutine-tracing-api-client-ktor",
@@ -137,7 +137,7 @@ subprojects {
 
         }
 
-        if (signRequired.toBoolean())
+        if (signRequired?.toBoolean() ?: false)
             signing {
                 val signingKey: String? by project
                 val signingPassword: String? by project
